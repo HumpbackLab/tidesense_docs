@@ -11,6 +11,7 @@ docker pull ghcr.io/humpbacklab/tidesense-dev:ubuntu24.04
 SDK_ROOT=$(pwd -P)
 docker run --rm -it --privileged --network=host \
   -v "$SDK_ROOT:$SDK_ROOT" -w "$SDK_ROOT" \
+  -v tidesense-calibration:/var/lib/containers/storage \
   ghcr.io/humpbacklab/tidesense-dev:ubuntu24.04 bash
 ```
 
@@ -23,7 +24,7 @@ TIDESENSE_DEV_IMAGE=ghcr.io/humpbacklab/tidesense-dev:ubuntu24.04 ./scripts/dev-
 
 仓库挂载进容器。Docker 默认以 root 运行，生成文件可能归 root 所有。
 
-开发镜像预装配置器所需的 Python 依赖、Node.js 和 ROS 2 Jazzy，启动时自动加载 ROS 环境。
+开发镜像预装配置器所需的 Python 依赖、Node.js、ROS 2 Jazzy 和已编译的 Kalibr 标定环境，启动时自动加载 ROS 环境。
 源码和前端构建产物使用挂载的代码仓。在容器内的仓库根目录执行：
 
 ```bash
@@ -32,9 +33,20 @@ npm --prefix tide_configurator/frontend run build
 ./tide_configurator/run.sh
 ```
 
-Kalibr 标定镜像需要在容器内另行构建：`./tide_configurator/calibration/environment/build.sh`。
-如需在退出后保留该镜像，启动开发容器时增加 `-v tidesense-calibration:/var/lib/containers/storage`。
-CI 在推送开发镜像前检查默认 Python 的依赖导入和依赖一致性，不挂载或运行配置器源码。
+首次启动时，容器会将随开发镜像提供的 Kalibr 镜像离线导入内部 Podman，无需另行下载或编译。
+上面的 Docker 命令和 `dev-container.sh` 均使用 `tidesense-calibration` 命名卷保留内部镜像库，后续启动可复用；脚本可通过 `TIDESENSE_CALIBRATION_VOLUME` 指定其他卷名。
+CI 在全新、断网的开发容器中检查默认 Python、ROS 依赖，以及双目和相机–IMU 两个 Kalibr 求解器的启动。
+
+自行构建包含 Kalibr 的开发镜像时，在 SDK 根目录执行 `./scripts/dev-container.sh build`。
+该命令先构建并检查 Kalibr，再将编译产物打包进开发镜像；无需直接调用 `podman build -f Containerfile.dev`。
+
+内存较紧张的电脑可以使用低内存构建入口：
+
+```bash
+./scripts/dev-image/limited.sh ./scripts/dev-container.sh build
+```
+
+它将编译并行度设为 1，限制整个构建进程树及文件缓存：内存软上限 2 GiB、硬上限 3 GiB、swap 上限 1 GiB，CPU 配额为一个核。结束时会输出实测内存峰值和 OOM 计数。此入口需要可用的 systemd 用户会话和 cgroup v2 内存控制器。
 
 ## 方式二：直接安装依赖（Ubuntu 24.04 x86_64）
 
