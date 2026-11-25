@@ -3,7 +3,7 @@
 （贴片/焊接完成后，安装好镜头座与镜头）
 - 下载最新SD卡发布文件，并烧录到SD卡中：https://github.com/HumpbackLab/tidesense/releases/latest
 - 使用USB线缆连接设备到电脑，此时应能识别一个RNDIS设备，如果未识别，参考附录。
-- 下载代码：https://github.com/HumpbackLab/tidesense 部署开发环境（强烈建议使用podman/docker 并使用tidesense已发布的开发镜像，以确保环境一致）
+- 下载代码：https://github.com/HumpbackLab/tidesense 部署开发环境（强烈建议使用 Podman 和 TideSense 已发布的开发镜像，以确保环境一致）
 - 编译构建TideConfigurator 并运行 https://github.com/HumpbackLab/tide_configurator 
 - 使用网页访问TideConfigurator，连接设备: 192.168.123.99, 用户名：root, 密码：tidesense
 - 在 相机标定 页面，选择镜头模式（鱼眼）， 点击启动预览，此时应该能出现双目的图像

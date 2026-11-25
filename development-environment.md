@@ -2,24 +2,10 @@
 
 以下两种方式提供工程所需的编译依赖。获取源码后，在仓库根目录执行。
 
-## 方式一：使用 Docker 或 Podman
-
-Docker：
+## 方式一：使用 Podman
 
 ```bash
-docker pull ghcr.io/humpbacklab/tidesense-dev:ubuntu24.04
-SDK_ROOT=$(pwd -P)
-docker run --rm -it --privileged --network=host \
-  -v "$SDK_ROOT:$SDK_ROOT" -w "$SDK_ROOT" \
-  -v tidesense-calibration:/var/lib/containers/storage \
-  ghcr.io/humpbacklab/tidesense-dev:ubuntu24.04 bash
-```
-
-Podman：
-
-```bash
-podman pull ghcr.io/humpbacklab/tidesense-dev:ubuntu24.04
-TIDESENSE_DEV_IMAGE=ghcr.io/humpbacklab/tidesense-dev:ubuntu24.04 ./scripts/dev-container.sh shell
+./setup.sh
 ```
 
 ## 方式二：直接安装依赖（Ubuntu 24.04 x86_64）
